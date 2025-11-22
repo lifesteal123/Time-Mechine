@@ -43,7 +43,8 @@
         }
 
         .side-content {
-            animation: digitalRain 30s linear infinite;
+            /* Changed animation duration from 30s to 45s */
+            animation: digitalRain 45s linear infinite;
         }
 
         #left-panel {
@@ -54,7 +55,8 @@
         #right-panel {
             right: 0;
             text-align: right;
-            animation-duration: 45s; 
+            /* Changed animation duration from 45s to 60s */
+            animation-duration: 60s; 
             animation-direction: reverse;
         }
 
@@ -184,7 +186,6 @@
 
     <div class="status-panel">
         <div class="status-item">Status: **ONLINE**</div>
-        <!-- Added ID to the stability item to update it dynamically -->
         <div class="status-item" id="stabilityStatus">Temporal Stability: **Loading...**</div>
         <div class="status-item" id="locationStatus">Location: **Loading...**</div>
     </div>
@@ -192,7 +193,7 @@
     <div id="log-container"></div>
 
     <footer>
-        © 2025 Ben Arie Family Systems
+        © 2025 **BenArie Alon**
     </footer>
 
     <script>
@@ -226,11 +227,9 @@
             }
         }
         
-        // Function to update the stability metric randomly
         function updateTemporalStability() {
             const min = 97.8;
             const max = 99.9;
-            // Generate a random number between min and max, formatted to one decimal place
             const stability = (Math.random() * (max - min) + min).toFixed(1); 
             stabilityStatusElement.innerHTML = `Temporal Stability: **${stability}%**`;
         }
@@ -284,7 +283,6 @@
         addToLog("Time Machine Interface initialized successfully.");
         
         intervalId = setInterval(tick, 1000);
-        // Start the stability metric updates every 3 seconds
         setInterval(updateTemporalStability, 3000);
 
     </script>
