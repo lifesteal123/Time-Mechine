@@ -184,7 +184,8 @@
 
     <div class="status-panel">
         <div class="status-item">Status: **ONLINE**</div>
-        <div class="status-item">Temporal Stability: **99.9%**</div>
+        <!-- Added ID to the stability item to update it dynamically -->
+        <div class="status-item" id="stabilityStatus">Temporal Stability: **Loading...**</div>
         <div class="status-item" id="locationStatus">Location: **Loading...**</div>
     </div>
 
@@ -201,6 +202,7 @@
         const leftContent = document.getElementById("left-content");
         const rightContent = document.getElementById("right-content");
         const locationStatusElement = document.getElementById("locationStatus");
+        const stabilityStatusElement = document.getElementById("stabilityStatus");
         const logContainer = document.getElementById("log-container");
         
         let displayDate = new Date();
@@ -223,6 +225,15 @@
                 locationStatusElement.innerHTML = `Location: **Unknown**`;
             }
         }
+        
+        // Function to update the stability metric randomly
+        function updateTemporalStability() {
+            const min = 97.8;
+            const max = 99.9;
+            // Generate a random number between min and max, formatted to one decimal place
+            const stability = (Math.random() * (max - min) + min).toFixed(1); 
+            stabilityStatusElement.innerHTML = `Temporal Stability: **${stability}%**`;
+        }
 
         function updateDisplay() {
             const formattedDate = displayDate.toLocaleDateString();
@@ -233,13 +244,11 @@
         }
         
         function tick() {
-            // Increment the displayDate by 1 second (1000 milliseconds)
             displayDate.setSeconds(displayDate.getSeconds() + 1); 
             updateDisplay();
         }
 
         function resetToCurrentTime() {
-            // When resetting, set the display date to the current exact time
             displayDate = new Date(); 
             updateDisplay();
             updateLocationDisplay();
@@ -249,7 +258,6 @@
         function updateDisplayFromInput() {
             const inputValue = dateTimeInput.value;
             if (inputValue) {
-                // When manually setting, set the display date to the input value
                 displayDate = new Date(inputValue);
                 updateDisplay();
                 addToLog(`Navigation successful: Jumped to ${displayDate.toLocaleString()}.`);
@@ -271,13 +279,13 @@
             rightContent.textContent = rightHTML;
         }
         
-        // Initialize the display and background
         resetToCurrentTime();
         generateBinaryBackground();
         addToLog("Time Machine Interface initialized successfully.");
         
-        // Start the live running clock immediately and keep it running
         intervalId = setInterval(tick, 1000);
+        // Start the stability metric updates every 3 seconds
+        setInterval(updateTemporalStability, 3000);
 
     </script>
 </body>
