@@ -54,7 +54,7 @@
         #right-panel {
             right: 0;
             text-align: right;
-            animation-duration: 45s;
+            animation-duration: 45s; 
             animation-direction: reverse;
         }
 
@@ -105,7 +105,7 @@
             margin-left: 10px;
             box-shadow: 0 0 5px #00ff99;
         }
-
+        
         .divider {
             width: 80%;
             border-top: 2px dashed #00ff99;
@@ -130,7 +130,6 @@
             text-transform: uppercase;
         }
 
-        /* New styles for the log container */
         #log-container {
             width: 80%;
             height: 100px;
@@ -138,7 +137,7 @@
             border: 1px solid #00ff99;
             margin-top: 20px;
             padding: 10px;
-            overflow-y: auto; /* Allows scrolling if log gets full */
+            overflow-y: auto;
             text-align: left;
             font-size: 0.8rem;
             z-index: 10;
@@ -159,133 +158,127 @@
     </style>
 </head>
 <body>
-<div id="left-panel" class="side-panel">
-    <div id="left-content" class="side-content"></div>
-</div>
-<div id="right-panel" class="side-panel">
-    <div id="right-content" class="side-content"></div>
-</div>
+    <div id="left-panel" class="side-panel">
+        <div id="left-content" class="side-content"></div>
+    </div>
+    <div id="right-panel" class="side-panel">
+        <div id="right-content" class="side-content"></div>
+    </div>
 
-<h1>Time Machine</h1>
+    <h1>Time Machine</h1>
+    
+    <p class="description">
+        Welcome to the Chronos Interface. Observe the current temporal coordinates below, or manually input new parameters to navigate the continuum.
+    </p>
 
-<p class="description">
-    Welcome to the Chronos Interface. Observe the current temporal coordinates below, or manually input new parameters to navigate the continuum.
-</p>
+    <div class="divider"></div>
 
-<div class="divider"></div>
+    <p id="currentDateRow" class="display-row"></p>
+    <p id="currentTimeRow" class="display-row"></p>
 
-<p id="currentDateRow" class="display-row"></p>
-<p id="currentTimeRow" class="display-row"></p>
+    <div class="controls">
+        <input type="datetime-local" id="dateTimeInput">
+        <button onclick="updateDisplayFromInput()">Change Time</button>
+        <button onclick="resetToCurrentTime()">Restart to Current</button>
+    </div>
 
-<div class="controls">
-    <input type="datetime-local" id="dateTimeInput">
-    <button onclick="updateDisplayFromInput()">Change Time</button>
-    <button onclick="resetToCurrentTime()">Restart to Current</button>
-</div>
+    <div class="status-panel">
+        <div class="status-item">Status: **ONLINE**</div>
+        <div class="status-item">Temporal Stability: **99.9%**</div>
+        <div class="status-item" id="locationStatus">Location: **Loading...**</div>
+    </div>
 
-<div class="status-panel">
-    <div class="status-item">Status: **ONLINE**</div>
-    <div class="status-item">Temporal Stability: **99.9%**</div>
-    <div class="status-item" id="locationStatus">Location: **Loading...**</div>
-</div>
+    <div id="log-container"></div>
 
-<!-- New Log Container Element -->
-<div id="log-container">
-    <!-- Log entries will be inserted here by JavaScript -->
-</div>
+    <footer>
+        © 2025 Ben Arie Family Systems
+    </footer>
 
-<footer>
-    © 2025 Ben Arie Alon Systems
-</footer>
+    <script>
+        const dateDisplayElement = document.getElementById("currentDateRow");
+        const timeDisplayElement = document.getElementById("currentTimeRow");
+        const dateTimeInput = document.getElementById("dateTimeInput");
+        const leftContent = document.getElementById("left-content");
+        const rightContent = document.getElementById("right-content");
+        const locationStatusElement = document.getElementById("locationStatus");
+        const logContainer = document.getElementById("log-container");
+        
+        let displayDate = new Date();
+        let intervalId;
 
-<script>
-    const dateDisplayElement = document.getElementById("currentDateRow");
-    const timeDisplayElement = document.getElementById("currentTimeRow");
-    const dateTimeInput = document.getElementById("dateTimeInput");
-    const leftContent = document.getElementById("left-content");
-    const rightContent = document.getElementById("right-content");
-    const locationStatusElement = document.getElementById("locationStatus");
-    const logContainer = document.getElementById("log-container");
-
-    let displayDate = new Date();
-    let intervalId;
-
-    // Function to add messages to the log container
-    function addToLog(message) {
-        const logEntry = document.createElement('div');
-        logEntry.classList.add('log-entry');
-        const now = new Date();
-        logEntry.textContent = `[${now.toLocaleTimeString()}] ${message}`;
-        logContainer.appendChild(logEntry);
-        // Auto-scroll to the bottom of the log
-        logContainer.scrollTop = logContainer.scrollHeight;
-    }
-
-    function updateLocationDisplay() {
-        try {
-            const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            locationStatusElement.innerHTML = `Location: **${timeZone}**`;
-        } catch (e) {
-            locationStatusElement.innerHTML = `Location: **Unknown**`;
+        function addToLog(message) {
+            const logEntry = document.createElement('div');
+            logEntry.classList.add('log-entry');
+            const now = new Date();
+            logEntry.textContent = `[${now.toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
         }
-    }
 
-    function updateDisplay() {
-        const formattedDate = displayDate.toLocaleDateString();
-        const formattedTime = displayDate.toLocaleTimeString();
+        function updateLocationDisplay() {
+            try {
+                const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                locationStatusElement.innerHTML = `Location: **${timeZone}**`;
+            } catch (e) {
+                locationStatusElement.innerHTML = `Location: **Unknown**`;
+            }
+        }
 
-        dateDisplayElement.textContent = formattedDate;
-        timeDisplayElement.textContent = formattedTime;
-    }
-
-    function tick() {
-        if (intervalId) {
-            displayDate = new Date();
+        function updateDisplay() {
+            const formattedDate = displayDate.toLocaleDateString();
+            const formattedTime = displayDate.toLocaleTimeString();
+            
+            dateDisplayElement.textContent = formattedDate;
+            timeDisplayElement.textContent = formattedTime;
+        }
+        
+        function tick() {
+            // Increment the displayDate by 1 second (1000 milliseconds)
+            displayDate.setSeconds(displayDate.getSeconds() + 1); 
             updateDisplay();
         }
-    }
 
-    function resetToCurrentTime() {
-        if (intervalId) {
-            clearInterval(intervalId);
+        function resetToCurrentTime() {
+            // When resetting, set the display date to the current exact time
+            displayDate = new Date(); 
+            updateDisplay();
+            updateLocationDisplay();
+            addToLog("System reset to current temporal coordinates.");
         }
-        displayDate = new Date();
-        updateDisplay();
-        updateLocationDisplay();
+
+        function updateDisplayFromInput() {
+            const inputValue = dateTimeInput.value;
+            if (inputValue) {
+                // When manually setting, set the display date to the input value
+                displayDate = new Date(inputValue);
+                updateDisplay();
+                addToLog(`Navigation successful: Jumped to ${displayDate.toLocaleString()}.`);
+            } else {
+                alert("Please select a date and time.");
+                addToLog("ERROR: Invalid temporal input.");
+            }
+        }
+
+        function generateBinaryBackground() {
+            const binaryChars = '01';
+            let leftHTML = '';
+            let rightHTML = '';
+            for (let i = 0; i < 8000; i++) {
+                leftHTML += binaryChars.charAt(Math.floor(Math.random() * binaryChars.length));
+                rightHTML += binaryChars.charAt(Math.floor(Math.random() * binaryChars.length));
+            }
+            leftContent.textContent = leftHTML;
+            rightContent.textContent = rightHTML;
+        }
+        
+        // Initialize the display and background
+        resetToCurrentTime();
+        generateBinaryBackground();
+        addToLog("Time Machine Interface initialized successfully.");
+        
+        // Start the live running clock immediately and keep it running
         intervalId = setInterval(tick, 1000);
-        addToLog("System reset to current temporal coordinates.");
-    }
 
-    function updateDisplayFromInput() {
-        const inputValue = dateTimeInput.value;
-        if (inputValue) {
-            clearInterval(intervalId);
-            intervalId = null;
-
-            displayDate = new Date(inputValue);
-            updateDisplay();
-            addToLog(`Navigation successful: Jumped to ${displayDate.toLocaleString()}.`);
-        } else {
-            alert("Please select a date and time.");
-            addToLog("ERROR: Invalid temporal input.");
-        }
-    }
-
-    function generateBinaryBackground() {
-        const binaryChars = '01';
-        let leftHTML = '';
-        let rightHTML = '';
-        for (let i = 0; i < 8000; i++) {
-            leftHTML += binaryChars.charAt(Math.floor(Math.random() * binaryChars.length));
-            rightHTML += binaryChars.charAt(Math.floor(Math.random() * binaryChars.length));
-        }
-        leftContent.textContent = leftHTML;
-        rightContent.textContent = rightHTML;
-    }
-
-    resetToCurrentTime();
-    generateBinaryBackground();
-    addToLog("Time Machine Interface initialized successfully.");
-</script>
+    </script>
 </body>
 </html>
